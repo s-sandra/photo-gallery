@@ -5,8 +5,10 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar,
          IonFab, IonFabButton, IonIcon, IonGrid, IonRow, 
          IonCol, IonImg, IonActionSheet } from '@ionic/react';
 import './Tab2.css';
+import { usePhotoGallery } from '../hooks/usePhotoGallery';
 
 const Tab2: React.FC = () => {
+  const { takePhoto } = usePhotoGallery();
   return (
     <IonPage>
       <IonHeader>
