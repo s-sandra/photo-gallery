@@ -9,19 +9,36 @@ export function usePhotoGallery() {
 
     const { getPhoto } = useCamera();
     const [photos, setPhotos] = useState<Photo[]>([]);
-  
-    const takePhoto = async () => {
-      const cameraPhoto = await getPhoto({
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Camera,
-        quality: 100
-      });
-      const fileName = new Date().getTime() + '.jpeg';
-      const newPhotos = [{
+    const { deleteFile, getUri, readFile, writeFile } = useFilesystem();
+
+    const savePicture = async (photo: CameraPhoto, fileName: string) => {
+        const base64Data = await base64FromPath(photo.webPath!);
+        await writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: FilesystemDirectory.Data
+        });
+        return getPhotoFile(photo, fileName);
+    };
+      
+    const getPhotoFile = async (cameraPhoto: CameraPhoto, fileName: string): Promise<Photo> => {
+        return {
           filepath: fileName,
           webviewPath: cameraPhoto.webPath
-      }, ...photos];
-      setPhotos(newPhotos)
+        };
+    };
+  
+    const takePhoto = async () => {
+        const cameraPhoto = await getPhoto({
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Camera,
+          quality: 100
+        });
+      
+        const fileName = new Date().getTime() + '.jpeg';
+        const savedFileImage = await savePicture(cameraPhoto, fileName);
+        const newPhotos = [savedFileImage, ...photos];
+        setPhotos(newPhotos);
     };
   
     return {
